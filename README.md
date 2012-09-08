@@ -1,0 +1,1 @@
+Zip this as a .xpi file and install to Thunderbird
