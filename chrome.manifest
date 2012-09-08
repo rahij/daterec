@@ -1,0 +1,4 @@
+content glodebug content/
+skin glodebug classic/1.0 skin/
+style chrome://global/content/customizeToolbar.xul chrome://glodebug/skin/overlay.css
+overlay chrome://messenger/content/messenger.xul chrome://glodebug/content/overlay.xul

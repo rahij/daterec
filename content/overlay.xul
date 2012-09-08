@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://glodebug/skin/overlay.css" type="text/css" ?>
+<overlay id="messengerWindow" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript" src="overlay.js" />
+
+  <toolbarpalette id="MailToolbarPalette">
+    <toolbarbutton id="glodebug-button"
+      class="toolbarbutton-1"
+      label="DateRec"
+      type="button"
+      tooltiptext="Alert Date"
+      oncommand="DateRec.do()"
+      />
+  </toolbarpalette>
+</overlay>
