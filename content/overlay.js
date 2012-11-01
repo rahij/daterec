@@ -14,6 +14,7 @@ var months={
   "July": 7,
   "August":8,
   "September" : 9,
+  "Sep": 9,
   "October": 10,
   "November": 11,
   "December": 12, 
@@ -41,8 +42,13 @@ var months={
 };
 
 var DateRec = {
+
+  test: function(){
+    alert("::");
+  },
   do: function () {
     // First we get msgHdr, a nsIMsgDbHdr
+    
     let msgHdr = gFolderDisplay.selectedMessage;
     let text = [];
     let add = function (s) text.push(s);
@@ -59,37 +65,64 @@ var DateRec = {
           },
         });
     }
-    // The first way of examining it is through the MimeMessage representation
+
     MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
       var message_body=(aMimeMsg.coerceBodyToPlaintext());
+      
       var regex=new Array(
-        /(\d+)\/(\d+)\/(\d+)/,
-        /(\d+)-(\S+)-(\d+)/,
-        /(\d+) (\S+) (\d+)/
+        /(\d+)\/(\d+)\/(\d+)/g,
+        /(\d+)-(\S+)-(\d+)/g,
+        /(\d+) (\S+) (\d+)/g,
+        /(\d+)(\S+) (\S+) (\d+)/g
       );
       
-      var num_dates=0;
+      var num_dates=0,match;
       for(var i=0;i<regex.length;++i){
-        var match=regex[i].exec(message_body);  
-        if(match==null || !(match[2] in months))
+        
+        while(match=regex[i].exec(message_body)){  
+          
+          var day_index,month_index=2,year_index;
+          if(i==3)
+          {
+            month_index=3;
+          }
+          if((match==null) || !(match[month_index] in months))
+            break;
+          ++num_dates;
+          
+          var v = document.getElementById("messagepane").contentDocument.body;
+        
+          var bodyTextElement = document.createElement('span');
+          bodyTextElement.setAttribute('day','3');
+          bodyTextElement.setAttribute('style','display:block;text-decoration: underline; color: blue;cursor:pointer;');
+          var t=document.createTextNode(match[0]);
+          bodyTextElement.appendChild(t);    
+
+          bodyTextElement.addEventListener("click",function(){
+            var day = this.getAttribute("day");
+            new_event_with_dates(day,9,2012);
+          });
+          
+          v.appendChild(bodyTextElement);
           continue;
-        ++num_dates
-        if (confirm("Add event on " + match[0]+ "?")) { 
-          test(match);  
+          
+          
+          if (confirm("Add event on " + match[0]+ "?")) { 
+            if(i!=3)
+              new_event(match);
+            else
+              new_event(match,1,3,4);  
+          }
         }
-        else
-          continue;
       }
-      if(num_dates==0)
-        alert("Sorry! No dates detected in this email");
+        
       top();
 
     });
   }
+};
 
-}
-
-function test(match){
+function new_event(match,day_index=1,month_index=2,year_index=3){
   var newItem = createEvent();
   var aMsgHdr=gFolderDisplay.selectedMessage;
   var aItem=newItem;
@@ -101,13 +134,35 @@ function test(match){
   aItem.startDate.second=0;
   aItem.startDate.minute=0;
   aItem.startDate.hour=16;
-  aItem.startDate.day=match[1];
+  aItem.startDate.day=match[day_index];
 
-  aItem.startDate.month=months[match[2]]-1;
+  aItem.startDate.month=months[match[month_index]]-1;
   
-  aItem.startDate.year=match[3];
+  aItem.startDate.year=match[year_index];
 
   aItem.endDate = aItem.startDate.clone();
   aItem.endDate.hour += 1;
-  createEventWithDialog(null, null, null, null, newItem);
+  createEventWithDialog(null, null, null, null, aItem);
+}
+
+function new_event_with_dates(day,month,year){
+  var newItem = createEvent();
+  var aMsgHdr=gFolderDisplay.selectedMessage;
+  var aItem=newItem;
+
+  aItem.calendar = getSelectedCalendar();
+  aItem.title = aMsgHdr.mime2DecodedSubject;
+  cal.setDefaultStartEndHour(aItem);
+  
+  aItem.startDate.second=0;
+  aItem.startDate.minute=0;
+  aItem.startDate.hour=16;
+  
+  aItem.startDate.day=day;
+  aItem.startDate.month=month;
+  aItem.startDate.year=year;
+
+  aItem.endDate = aItem.startDate.clone();
+  aItem.endDate.hour += 1;
+  createEventWithDialog(null, null, null, null, aItem); 
 }
